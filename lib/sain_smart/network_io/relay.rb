@@ -16,9 +16,8 @@ module SainSmart
       end
 
       def connection
-        # TODO: 
-        # Introduce connection handling ... (also support V2 shields)
-        @tcp_socket ||= TCPSocket.new "192.168.1.4", 3000
+        # TODO: Introduce connection handling ... (also support V2 shields)
+        @tcp_socket ||= TCPSocket.new '192.168.1.4', 3000
       end
 
       def channels
