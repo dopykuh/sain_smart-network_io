@@ -1,5 +1,6 @@
+require 'sain_smart/network_io/version'
+
 module SainSmart
   module NetworkIO
-    VERSION = "0.1.0"
   end
 end
