@@ -15,30 +15,40 @@ module SainSmart
           580111000000107A 5801130000FFFF77 580113000000007B 5801100000000069
         ).freeze
 
-        attr_reader :channel, :connection
+        attr_reader :channel, :connection, :states
 
-        def initialize(channel:, connection: nil)
-          # TODO: handle connection
+        def initialize(channel:, connection: nil, states: {})
           @connection = connection
+          @states = states
           return @channel = channel if (1..16).cover?(channel)
           raise Exception::Relay::Channel::InvalidChannel,
                 "Invalid channel given: #{channel.inspect}, (1..16) supported."
         end
 
         def on!
-          connection.write(on_command)
+          connection.send(on_command)
         end
 
         def off!
-          connection.write(off_command)
+          connection.send(off_command)
+        end
+
+        def on?
+          raise Exception::Unsupported, 
+            "Just supported for version 2" unless connection.v2?
+          states[channel] || connection.states[channel]
+        end
+
+        def off?
+          !on?
         end
 
         def on_command
-          [COMMANDS[(channel - 1) * 2]].pack('H*')
+          connection.v2? ? (channel*2).pred : COMMANDS[channel.pred * 2]
         end
 
         def off_command
-          [COMMANDS[((channel - 1) * 2) + 1]].pack('H*')
+          connection.v2? ? (channel.pred*2) : COMMANDS[(channel.pred * 2) + 1]
         end
       end
     end

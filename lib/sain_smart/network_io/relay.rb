@@ -1,4 +1,5 @@
 require 'socket'
+require 'net/http'
 
 module SainSmart
   module NetworkIO
@@ -7,24 +8,38 @@ module SainSmart
 
       TYPES = %w(16CH).freeze
 
-      attr_reader :type
+      attr_reader :type, :version
 
-      def initialize(type:)
-        return @type = type if TYPES.include?(type.to_s)
+      def initialize(type:, version: 2)
+        @type = type if TYPES.include?(type.to_s)
+        @version = version
         raise Exception::Relay::InvalidType,
-              "Invalid type given: #{type.inspect}"
+              "Invalid type given: #{type.inspect}" unless @type
       end
 
       def connection
-        # TODO: Introduce connection handling ... (also support V2 shields)
-        @tcp_socket ||= TCPSocket.new '192.168.1.4', 3000
+        @connection ||= NetworkIO::Connection.new(version: version)
       end
 
-      def channels
+      def channel(i)
+        case type
+        when '16CH'
+          SixteenChannel.new(
+            channel: i, 
+            connection: connection 
+          )
+        end
+      end
+
+      def channels(with_states: false)
         case type
         when '16CH'
           1.upto(16).map do |i|
-            SixteenChannel.new(channel: i, connection: connection)
+            SixteenChannel.new(
+              channel: i, 
+              connection: connection, 
+              states: (with_states ? connection.states : {})
+            )
           end
         else []
         end
