@@ -34,8 +34,10 @@ module SainSmart
         end
 
         def on?
-          raise Exception::Unsupported, 
-            "Just supported for version 2" unless connection.v2?
+          unless connection.v2?
+            raise Exception::Unsupported,
+                  'Just supported for version 2'
+          end
           states[channel] || connection.states[channel]
         end
 
@@ -44,11 +46,11 @@ module SainSmart
         end
 
         def on_command
-          connection.v2? ? (channel*2).pred : COMMANDS[channel.pred * 2]
+          connection.v2? ? (channel * 2).pred : COMMANDS[channel.pred * 2]
         end
 
         def off_command
-          connection.v2? ? (channel.pred*2) : COMMANDS[(channel.pred * 2) + 1]
+          connection.v2? ? (channel.pred * 2) : COMMANDS[(channel.pred * 2) + 1]
         end
       end
     end

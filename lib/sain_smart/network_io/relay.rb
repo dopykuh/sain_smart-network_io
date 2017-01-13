@@ -13,8 +13,10 @@ module SainSmart
       def initialize(type:, version: 2)
         @type = type if TYPES.include?(type.to_s)
         @version = version
-        raise Exception::Relay::InvalidType,
-              "Invalid type given: #{type.inspect}" unless @type
+        unless @type
+          raise Exception::Relay::InvalidType,
+                "Invalid type given: #{type.inspect}"
+        end
       end
 
       def connection
@@ -25,8 +27,8 @@ module SainSmart
         case type
         when '16CH'
           SixteenChannel.new(
-            channel: i, 
-            connection: connection 
+            channel: i,
+            connection: connection
           )
         end
       end
@@ -36,8 +38,8 @@ module SainSmart
         when '16CH'
           1.upto(16).map do |i|
             SixteenChannel.new(
-              channel: i, 
-              connection: connection, 
+              channel: i,
+              connection: connection,
               states: (with_states ? connection.states : {})
             )
           end
